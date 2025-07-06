@@ -6,9 +6,9 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GEMINI_API_KEY } from '@env';
 
 // Gemini API setup
-const GEMINI_API_KEY = Constants.expoConfig?.extra?.geminiApiKey || 'AIzaSyCoahza-DqIq2Qq1wLpSlXg3nEwhVhw3GA';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 export default function TextToSpeech() {

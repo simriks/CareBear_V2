@@ -46,7 +46,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "geminiApiKey": "AIzaSyCoahza-DqIq2Qq1wLpSlXg3nEwhVhw3GA"
+      "geminiApiKey": "${GEMINI_API_KEY}"
     }
   }
 }
