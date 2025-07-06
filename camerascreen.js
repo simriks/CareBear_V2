@@ -7,42 +7,71 @@ export default function CameraScreen() {
   const cameraRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [isReady, setIsReady] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamCount, setStreamCount] = useState(0);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    // Request camera permissions if not granted
     if (!permission?.granted) {
       requestPermission();
     }
   }, [permission]);
 
+  const startStreaming = () => {
+    if (!isStreaming && cameraRef.current && isReady) {
+      setIsStreaming(true);
+      console.log('Starting continuous image streaming...');
+      
+      // Capture and send images every 1 second
+      intervalRef.current = setInterval(async () => {
+        try {
+          const photo = await cameraRef.current.takePictureAsync({ 
+            base64: true,
+            quality: 0.3, // Reduced quality for faster transfer
+            skipProcessing: true // Skip image processing for speed
+          });
+          
+          setStreamCount(prev => prev + 1);
+          
+          // Send to server
+          await fetch('http://192.168.2.117:8080/frame', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image: `data:image/jpeg;base64,${photo.base64}`,
+              timestamp: Date.now()
+            }),
+          });
+          
+        } catch (error) {
+          console.error('Error in continuous streaming:', error);
+        }
+      }, 1000); // Send every 1 second
+    }
+  };
+
+  const stopStreaming = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setIsStreaming(false);
+      console.log('Stopped continuous streaming');
+    }
+  };
+
   const handleFlipCamera = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
+  };
 
-  const takePicture = async () => {
-  if (cameraRef.current && isReady) {
-    try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
-      console.log('Photo taken:', photo);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
-      // SEND image to web server:
-      await fetch('http://10.196.202.170:8080/frame', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image: `data:image/jpeg;base64,${photo.base64}`,
-          timestamp: Date.now()
-        }),
-      });
-
-    } catch (error) {
-      console.error('Error taking picture:', error);
-    }
-  }
-};
-
-
-  // Handle permission states
   if (!permission) {
     return (
       <View style={styles.container}>
@@ -78,13 +107,23 @@ export default function CameraScreen() {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.button, styles.captureButton]} 
-            onPress={takePicture}
+            style={[styles.button, isStreaming ? styles.stopButton : styles.startButton]} 
+            onPress={isStreaming ? stopStreaming : startStreaming}
             disabled={!isReady}
           >
-            <Text style={styles.buttonText}>{isReady ? 'Capture' : 'Loading...'}</Text>
+            <Text style={styles.buttonText}>
+              {!isReady ? 'Loading...' : isStreaming ? 'Stop Stream' : 'Start Stream'}
+            </Text>
           </TouchableOpacity>
         </View>
+        
+        {isStreaming && (
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>
+              🔴 STREAMING - Images sent: {streamCount}
+            </Text>
+          </View>
+        )}
       </CameraView>
     </View>
   );
@@ -115,8 +154,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginHorizontal: 20,
   },
-  captureButton: {
-    backgroundColor: 'rgba(255, 105, 180, 0.7)',
+  startButton: {
+    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+    padding: 20,
+  },
+  stopButton: {
+    backgroundColor: 'rgba(244, 67, 54, 0.7)',
     padding: 20,
   },
   buttonText: {
@@ -133,5 +176,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF69B4',
     padding: 15,
     borderRadius: 10,
+  },
+  statusContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  statusText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 10,
+    borderRadius: 5,
   },
 });
