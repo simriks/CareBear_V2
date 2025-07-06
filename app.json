@@ -7,6 +7,12 @@
           "cameraPermission": "Allow access to your camera",
           "microphonePermission": "Allow access to your microphone"
         }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow CareBear to access your microphone for voice commands"
+        }
       ]
     ],
     "name": "TextToSpeechApp",
@@ -29,11 +35,18 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "geminiApiKey": "AIzaSyCoahza-DqIq2Qq1wLpSlXg3nEwhVhw3GA"
     }
-    
   }
 }

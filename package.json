@@ -10,13 +10,17 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/native": "^7.1.14",
     "@react-navigation/stack": "^7.4.2",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "expo": "~53.0.17",
+    "expo-av": "~15.1.7",
     "expo-camera": "~16.1.10",
+    "expo-constants": "~17.1.7",
+    "expo-file-system": "~18.1.11",
     "expo-speech": "~13.1.7",
     "expo-status-bar": "~2.2.3",
     "express": "^5.1.0",
