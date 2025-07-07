@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 
 // Gemini API setup
-const GEMINI_API_KEY = Constants.expoConfig?.extra?.geminiApiKey || 'AIzaSyCoahza-DqIq2Qq1wLpSlXg3nEwhVhw3GA';
+const GEMINI_API_KEY = Constants.expoConfig?.extra?.geminiApiKey;
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 export default function CameraScreen() {
